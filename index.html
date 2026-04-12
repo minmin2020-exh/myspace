@@ -147,7 +147,6 @@ body{
 .item:nth-child(4n+3) .icon{background:#51cf66}
 .item:nth-child(4n+4) .icon{background:#fab005}
 
-/* 跑马灯动画 */
 @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
@@ -158,10 +157,9 @@ body{
 
 <canvas id="fireworks"></canvas>
 
-<!-- 底部跑马灯 -->
 <div style="position:fixed;bottom:0;left:0;width:100%;background:rgba(0,0,0,0.5);color:#fff;padding:6px 0;font-size:14px;overflow:hidden;white-space:nowrap;z-index:999;">
   <div style="display:inline-block;animation:marquee 14s linear infinite;">
-    东风吹破少年梦，从此再无赤子心！欢迎来到我的主页
+    欢迎来到我的主页，代缴话费，电费，燃气等费用，欢迎咨询
   </div>
 </div>
 
@@ -209,7 +207,6 @@ body{
 </div>
 
 <script>
-// 烟花
 const canvas = document.getElementById('fireworks');
 const ctx = canvas.getContext('2d');
 function resize() {
@@ -295,7 +292,6 @@ function loop() {
 setInterval(() => fireworks.push(new Firework()), 1000);
 loop();
 
-// 时间
 function updateDateTime(){
     const now=new Date();
     const w=['日','一','二','三','四','五','六'];
@@ -305,7 +301,6 @@ function updateDateTime(){
 setInterval(updateDateTime,1000);
 updateDateTime();
 
-// 搜索
 const search=document.getElementById('searchInput');
 const nav=document.getElementById('navBox');
 const suggest=document.getElementById('suggest');
@@ -366,12 +361,28 @@ function fixUrl(url){
     return url;
 }
 
-let list = JSON.parse(localStorage.getItem('bookmarks')) || [
+// ==============================================
+// 版本号控制，改这里就能强制刷新书签
+const CONFIG_VERSION = "v2";
+const DEFAULT_LIST = [
     {name:'后台',url:'http://38.246.248.159/agent.php/login/login.html'},
     {name:'查询',url:'http://38.246.248.159/#/pages/other/qorder'},
     {name:'谷歌',url:'https://2fa.run/'},
     {name:'知乎',url:'https://www.zhihu.com'}
 ];
+
+// 自动判断是否需要重置本地书签
+let savedVersion = localStorage.getItem('bm_version');
+let list;
+
+if (!savedVersion || savedVersion !== CONFIG_VERSION) {
+    localStorage.removeItem('bookmarks');
+    localStorage.setItem('bm_version', CONFIG_VERSION);
+    list = DEFAULT_LIST;
+} else {
+    list = JSON.parse(localStorage.getItem('bookmarks')) || DEFAULT_LIST;
+}
+// ==============================================
 
 let currentIndex = null;
 
@@ -468,4 +479,3 @@ render();
 </script>
 </body>
 </html>
-
