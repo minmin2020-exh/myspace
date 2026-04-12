@@ -112,8 +112,9 @@ body{
     font-size:20px;font-weight:bold
 }
 
-.add-btn{
-    background:rgba(255,255,255,.2) !important;font-size:20px !important;cursor:pointer;
+/* 去掉灰色背景，让+号和其他图标样式统一 */
+.add-btn {
+    cursor: pointer;
 }
 .add-btn span{display:none}
 
@@ -141,6 +142,7 @@ body{
 .menu div{padding:10px 16px;cursor:pointer}
 .menu div:hover{background:#333}
 
+/* 彩色循环（+号也会自动继承） */
 .item:nth-child(4n+1) .icon{background:#ff6b6b}
 .item:nth-child(4n+2) .icon{background:#4dabf7}
 .item:nth-child(4n+3) .icon{background:#51cf66}
