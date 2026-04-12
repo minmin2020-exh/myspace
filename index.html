@@ -1,76 +1,415 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>纯净导航</title>
-    <style>
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
-        body{
-            background:#121212;
-            color:#fff;
-            font-family:system-ui;
-            padding:20px;
-        }
-        .title{
-            text-align:center;
-            margin:30px 0;
-            font-size:22px;
-            font-weight:bold;
-            color:#f5f5f5;
-        }
-        .nav-box{
-            display:grid;
-            grid-template-columns:repeat(3,1fr);
-            gap:15px;
-            margin-top:20px;
-        }
-        .item{
-            background:#1e1e1e;
-            border-radius:12px;
-            padding:20px 10px;
-            text-align:center;
-            font-size:14px;
-            color:#eee;
-            text-decoration:none;
-            transition:0.2s;
-            border:1px solid #333;
-        }
-        .item:active{
-            background:#2d2d2d;
-            transform:scale(0.96);
-        }
-        .container{
-            max-width:420px;
-            margin:0 auto;
-        }
-        .footer{
-            text-align:center;
-            margin-top:50px;
-            font-size:12px;
-            color:#666;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>纯净导航</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:#000 url("https://icdn.binmt.cc/2604/69db59cbd3beb.jpeg") center/cover fixed;
+    color:#fff;
+    font-family:system-ui,roboto;
+    min-height:100vh;
+    padding:20px
+}
+.container{
+    max-width:600px;
+    margin:0 auto;
+    position:relative;
+    z-index:2
+}
+.datetime{
+    text-align:center;
+    margin:40px 0 24px;
+    text-shadow:0 2px 10px rgba(0,0,0,.5)
+}
+.time{
+    font-size:3.4rem;
+    font-weight:700
+}
+.date{
+    font-size:1rem;
+    opacity:.9
+}
+.search-wrap{
+    position:relative;
+    margin-bottom:12px
+}
+.search-bar{
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(6px);
+    border-radius:30px;
+    height:56px
+}
+.search-input{
+    width:100%;
+    height:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:16px;
+    padding:0 20px;
+    border-radius:30px
+}
+.suggest{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    margin-top:4px;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(12px);
+    border-radius:16px;
+    padding:8px;
+    display:none;
+    z-index:999;
+    max-height:240px;
+    overflow-y:auto
+}
+.suggest.show{display:block}
+.suggest-item{
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px
+}
+.suggest-item:hover{background:rgba(255,255,255,.1)}
+
+.nav-box{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-top:20px;
+    transition:.3s ease
+}
+.nav-box.hide{
+    opacity:0;
+    transform:translateY(10px);
+    pointer-events:none
+}
+.item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    text-decoration:none;
+    color:#fff;
+    font-size:12px;
+    user-select:none;
+    touch-action:none
+}
+.icon{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    font-weight:bold
+}
+
+.add-btn{
+    background:rgba(255,255,255,.2) !important;
+    font-size:20px !important;
+    cursor:pointer;
+}
+
+.footer{
+    text-align:center;
+    margin-top:40px;
+    font-size:12px;
+    opacity:.6
+}
+
+.mask{
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,.7);
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center
+}
+.mask.show{display:flex}
+.modal{
+    background:#111;
+    padding:24px;
+    border-radius:16px;
+    width:90%;
+    max-width:320px
+}
+.modal input{
+    width:100%;
+    padding:12px 14px;
+    margin:8px 0;
+    border-radius:10px;
+    border:none;
+    background:#222;
+    color:#fff
+}
+.modal .btns{
+    display:flex;
+    gap:10px;
+    margin-top:12px
+}
+.modal button{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer
+}
+.modal .ok{background:#07c160;color:#fff}
+.modal .cancel{background:#333;color:#fff}
+
+.menu{
+    position:absolute;
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:8px 0;
+    z-index:9999;
+    min-width:140px;
+    display:none
+}
+.menu.show{display:block}
+.menu div{
+    padding:10px 16px;
+    cursor:pointer
+}
+.menu div:hover{background:#333}
+
+.item.sorting{opacity:.5}
+.item.sorting .icon{transform:scale(0.9)}
+
+.item:nth-child(5n+1) .icon{background:#ff6b6b}
+.item:nth-child(5n+2) .icon{background:#4dabf7}
+.item:nth-child(5n+3) .icon{background:#51cf66}
+.item:nth-child(5n+4) .icon{background:#fab005}
+.item:nth-child(5n+5) .icon{background:#9775fa}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="title">手机纯净导航</div>
-        <div class="nav-box">
-            <a class="item" href="#">导航1</a>
-            <a class="item" href="#">导航2</a>
-            <a class="item" href="#">导航3</a>
-            <a class="item" href="#">导航4</a>
-            <a class="item" href="#">导航5</a>
-            <a class="item" href="#">导航6</a>
-            <a class="item" href="#">导航7</a>
-            <a class="item" href="#">导航8</a>
-            <a class="item" href="#">导航9</a>
+
+<div class="mask" id="editMask">
+    <div class="modal">
+        <input id="editName" placeholder="名称">
+        <input id="editUrl" placeholder="网址">
+        <div class="btns">
+            <button class="cancel" onclick="closeEdit()">取消</button>
+            <button class="ok" onclick="saveEdit()">保存</button>
         </div>
-        <div class="footer">纯净导航 · 无广告</div>
     </div>
+</div>
+
+<div class="menu" id="longMenu">
+    <div onclick="startSort()">排序</div>
+    <div onclick="openEdit()">编辑</div>
+    <div onclick="doDel()" style="color:#ff4444">删除</div>
+</div>
+
+<div class="container">
+    <div class="datetime">
+        <div class="time" id="time">00:00:00</div>
+        <div class="date" id="date">2026-04-12 星期日</div>
+    </div>
+
+    <div class="search-wrap">
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索一下~">
+        </div>
+        <div class="suggest" id="suggest"></div>
+    </div>
+
+    <div class="nav-box" id="navBox"></div>
+
+    <div class="footer">纯净导航 · 长按管理书签</div>
+</div>
+
+<script>
+// 时间
+function updateDateTime(){
+    const now=new Date();
+    const w=['日','一','二','三','四','五','六'];
+    document.getElementById('time').textContent=now.toTimeString().slice(0,8);
+    document.getElementById('date').textContent=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,0)}-${String(now.getDate()).padStart(2,0)} 星期${w[now.getDay()]}`
+}
+setInterval(updateDateTime,1000);
+updateDateTime();
+
+// 搜索联想
+const search=document.getElementById('searchInput');
+const nav=document.getElementById('navBox');
+const suggest=document.getElementById('suggest');
+let timer;
+
+function getSuggest(word){
+    if(!word){suggest.classList.remove('show');return}
+    const s=document.createElement('script');
+    window.baiduSuggestCallback=res=>{
+        suggest.innerHTML=res.s?.map(i=>`<div class="suggest-item">${i}</div>`).join('')||'';
+        suggest.classList.add('show');
+        document.querySelectorAll('.suggest-item').forEach(el=>{
+            el.onclick=()=>{search.value=el.textContent;suggest.classList.remove('show');searchFn(el.textContent)}
+        });
+        document.body.removeChild(s)
+    };
+    s.src=`https://suggestion.baidu.com/su?wd=${encodeURIComponent(word)}&cb=baiduSuggestCallback`;
+    document.body.appendChild(s)
+}
+
+function searchFn(q){
+    if(!q)return;
+    window.open(q.startsWith('http')?q:`https://www.baidu.com/s?wd=${encodeURIComponent(q)}`)
+}
+
+search.addEventListener('input',()=>{
+    clearTimeout(timer);
+    const v=search.value.trim();
+    v ? (nav.classList.add('hide'), timer=setTimeout(()=>getSuggest(v),100)) : (nav.classList.remove('hide'), suggest.classList.remove('show'))
+});
+search.addEventListener('blur',()=>setTimeout(()=>suggest.classList.remove('show'),200));
+search.addEventListener('keydown',e=>e.key==='Enter'&&searchFn(search.value.trim()));
+
+// 自动补 http
+function fixUrl(url){
+    if(!url) return '';
+    if(!/^https?:\/\//i.test(url)) return 'http://'+url;
+    return url;
+}
+
+// 书签数据
+let list = JSON.parse(localStorage.getItem('bookmarks')) || [
+    {name:'百度',url:'https://www.baidu.com'},
+    {name:'抖音',url:'https://www.douyin.com'},
+    {name:'B站',url:'https://www.bilibili.com'},
+    {name:'知乎',url:'https://www.zhihu.com'},
+    {name:'淘宝',url:'https://www.taobao.com'}
+];
+
+let currentIndex = null;
+let isSorting = false;
+
+// 渲染
+function render(){
+    let html = '';
+    list.forEach((it,i)=>{
+        const t = it.name.charAt(0);
+        html+=`
+        <a class="item" data-index="${i}" href="${it.url}" target="_blank">
+            <div class="icon">${t}</div>
+            <span>${it.name}</span>
+        </a>`;
+    });
+    html+=`
+    <div class="item add-btn" onclick="openAdd()">
+        <div class="icon">+</div>
+        <span>添加</span>
+    </div>`;
+    nav.innerHTML = html;
+    bindLongPress();
+}
+
+// 长按
+function bindLongPress(){
+    const items = document.querySelectorAll('.item:not(.add-btn)');
+    let longTimer;
+    items.forEach(el=>{
+        el.ontouchstart = el.onmousedown = (e)=>{
+            if(isSorting) return;
+            longTimer = setTimeout(()=>{
+                if(e.type === 'mousedown') e.preventDefault();
+                currentIndex = parseInt(el.dataset.index);
+                showMenu(el);
+            }, 500);
+        };
+        el.ontouchend = el.onmouseup = ()=>clearTimeout(longTimer);
+        el.onmouseleave = ()=>clearTimeout(longTimer);
+        el.ondragstart = ()=>false;
+    });
+}
+
+// 菜单
+const menu = document.getElementById('longMenu');
+function showMenu(el){
+    const rect = el.getBoundingClientRect();
+    menu.style.left = rect.left + 'px';
+    menu.style.top = rect.bottom + 8 + 'px';
+    menu.classList.add('show');
+}
+document.addEventListener('click',()=>menu.classList.remove('show'));
+
+// 排序
+function startSort(){
+    menu.classList.remove('show');
+    if(isSorting) return;
+    isSorting = true;
+    const items = document.querySelectorAll('.item:not(.add-btn)');
+    items.forEach(el=>{
+        el.setAttribute('draggable',true);
+        el.classList.add('sorting');
+        el.ondragend = ()=>{
+            isSorting = false;
+            items.forEach(i=>i.classList.remove('sorting'));
+            localStorage.setItem('bookmarks',JSON.stringify(list));
+            render();
+        };
+        el.ondragover = (e)=>e.preventDefault();
+        el.ondrop = function(){
+            const i1 = currentIndex;
+            const i2 = parseInt(this.dataset.index);
+            [list[i1], list[i2]] = [list[i2], list[i1]];
+            render();
+        };
+        el.ondragstart = ()=>currentIndex = parseInt(el.dataset.index);
+    });
+}
+
+// 编辑
+const editMask = document.getElementById('editMask');
+function openEdit(){
+    menu.classList.remove('show');
+    const item = list[currentIndex];
+    document.getElementById('editName').value = item.name;
+    document.getElementById('editUrl').value = item.url;
+    editMask.classList.add('show');
+}
+function closeEdit(){ editMask.classList.remove('show') }
+function saveEdit(){
+    const name = document.getElementById('editName').value.trim();
+    let url = document.getElementById('editUrl').value.trim();
+    if(!name || !url) return alert('请填写完整');
+    url = fixUrl(url);
+    list[currentIndex] = {name,url};
+    localStorage.setItem('bookmarks',JSON.stringify(list));
+    render();
+    closeEdit();
+}
+
+// 删除
+function doDel(){
+    menu.classList.remove('show');
+    if(!confirm('确定删除？')) return;
+    list.splice(currentIndex,1);
+    localStorage.setItem('bookmarks',JSON.stringify(list));
+    render();
+}
+
+// 添加
+function openAdd(){
+    const name = prompt('请输入名称');
+    if(!name) return;
+    let url = prompt('请输入网址');
+    if(!url) return;
+    url = fixUrl(url);
+    list.push({name,url});
+    localStorage.setItem('bookmarks',JSON.stringify(list));
+    render();
+}
+
+render();
+</script>
 </body>
 </html>
