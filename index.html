@@ -35,7 +35,9 @@ body{
 .datetime{
     text-align:center;
     margin:40px 0 24px;
-    text-shadow:0 2px 10px rgba(0,0,0,.5)
+    text-shadow:0 2px 10px rgba(0,0,0,.5);
+    cursor:pointer;
+    user-select:none;
 }
 .time{
     font-size:3.2rem;
@@ -102,6 +104,11 @@ body{
     transform:translateY(10px);
     pointer-events:none
 }
+
+.item.hidden {
+    display: none;
+}
+
 .item{
     display:flex;flex-direction:column;align-items:center;
     gap:6px;text-decoration:none;color:#fff;font-size:12px;
@@ -191,7 +198,7 @@ body{
 </div>
 
 <div class="container">
-    <div class="datetime">
+    <div class="datetime" id="timeTrigger">
         <div class="time" id="time">00:00:00</div>
         <div class="date" id="date">2026-04-12 星期日</div>
     </div>
@@ -362,27 +369,35 @@ function fixUrl(url){
 }
 
 // ==============================================
-// 版本号控制，改这里就能强制刷新书签
-const CONFIG_VERSION = "v2";
-const DEFAULT_LIST = [
-    {name:'后台',url:'http://38.246.248.159/agent.php/login/login.html'},
-    {name:'查询',url:'http://38.246.248.159/#/pages/other/qorder'},
-    {name:'谷歌',url:'https://2fa.run/'},
-    {name:'知乎',url:'https://www.zhihu.com'}
+// 系统固定书签（云端更新这里即可，无需改版本号）
+const SYS_BOOKMARKS = [
+    {name:'后台', url:'http://38.246.248.159/agent.php/login/login.html', hide:true, isSys:true},
+    {name:'查询', url:'http://38.246.248.159/#/pages/other/qorder', hide:true, isSys:true},
+    {name:'谷歌', url:'https://2fa.run/', hide:true, isSys:true},
+    {name:'豆包', url:'http://doubao.xyyh.xyz/', hide:false, isSys:true}
 ];
 
-// 自动判断是否需要重置本地书签
-let savedVersion = localStorage.getItem('bm_version');
-let list;
+// 本地自定义书签（用户自己加的，永久保存）
+let userBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '[]');
 
-if (!savedVersion || savedVersion !== CONFIG_VERSION) {
-    localStorage.removeItem('bookmarks');
-    localStorage.setItem('bm_version', CONFIG_VERSION);
-    list = DEFAULT_LIST;
-} else {
-    list = JSON.parse(localStorage.getItem('bookmarks')) || DEFAULT_LIST;
-}
+// 最终列表 = 系统书签 + 本地书签
+let list = [...SYS_BOOKMARKS, ...userBookmarks];
 // ==============================================
+
+// 点击时间三次显示/隐藏系统隐藏书签
+let clickCount = 0;
+let clickTimer;
+document.getElementById('timeTrigger').onclick = () => {
+    clickCount++;
+    clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => clickCount = 0, 800);
+    if (clickCount === 3) {
+        clickCount = 0;
+        document.querySelectorAll('.item.hidden').forEach(el => {
+            el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+        });
+    }
+};
 
 let currentIndex = null;
 
@@ -390,8 +405,9 @@ function render(){
     let html = '';
     list.forEach((it,i)=>{
         const t = it.name.charAt(0);
+        const cls = it.hide ? 'item hidden' : 'item';
         html+=`
-        <a class="item" data-index="${i}" href="${it.url}" target="_blank">
+        <a class="${cls}" data-index="${i}" href="${it.url}" target="_blank">
             <div class="icon">${t}</div>
             <span>${it.name}</span>
         </a>`;
@@ -441,8 +457,11 @@ function saveAdd(){
     let url = document.getElementById('addUrl').value.trim();
     if(!name || !url) return alert('请填写完整');
     url = fixUrl(url);
-    list.push({name,url});
-    localStorage.setItem('bookmarks',JSON.stringify(list));
+
+    const newItem = {name, url, hide:false, isSys:false};
+    userBookmarks.push(newItem);
+    localStorage.setItem('userBookmarks', JSON.stringify(userBookmarks));
+    list = [...SYS_BOOKMARKS, ...userBookmarks];
     render();
     closeAdd();
 }
@@ -451,6 +470,11 @@ const editMask = document.getElementById('editMask');
 function openEdit(){
     menu.classList.remove('show');
     const item = list[currentIndex];
+    // 系统书签禁止编辑
+    if(item.isSys){
+        alert('系统默认书签不可编辑');
+        return;
+    }
     document.getElementById('editName').value = item.name;
     document.getElementById('editUrl').value = item.url;
     editMask.classList.add('show');
@@ -461,17 +485,31 @@ function saveEdit(){
     let url = document.getElementById('editUrl').value.trim();
     if(!name || !url) return alert('请填写完整');
     url = fixUrl(url);
-    list[currentIndex] = {name,url};
-    localStorage.setItem('bookmarks',JSON.stringify(list));
+
+    const item = list[currentIndex];
+    if(item.isSys) return;
+
+    userBookmarks = userBookmarks.map(b => 
+        b === item ? {name, url, hide:false, isSys:false} : b
+    );
+    localStorage.setItem('userBookmarks', JSON.stringify(userBookmarks));
+    list = [...SYS_BOOKMARKS, ...userBookmarks];
     render();
     closeEdit();
 }
 
 function doDel(){
     menu.classList.remove('show');
+    const item = list[currentIndex];
+    if(item.isSys){
+        alert('系统默认书签不可删除');
+        return;
+    }
     if(!confirm('确定删除？')) return;
-    list.splice(currentIndex,1);
-    localStorage.setItem('bookmarks',JSON.stringify(list));
+
+    userBookmarks = userBookmarks.filter(b => b !== item);
+    localStorage.setItem('userBookmarks', JSON.stringify(userBookmarks));
+    list = [...SYS_BOOKMARKS, ...userBookmarks];
     render();
 }
 
