@@ -214,6 +214,9 @@ body{
 </div>
 
 <script>
+// 版本号（用于云端同步更新）
+const VERSION = '1.1.0';
+
 const canvas = document.getElementById('fireworks');
 const ctx = canvas.getContext('2d');
 function resize() {
@@ -374,7 +377,8 @@ const SYS_BOOKMARKS = [
     {name:'后台', url:'http://38.246.248.159/agent.php/login/login.html', hide:true, isSys:true},
     {name:'查询', url:'http://38.246.248.159/#/pages/other/qorder', hide:true, isSys:true},
     {name:'谷歌', url:'https://2fa.run/', hide:true, isSys:true},
-    {name:'豆包', url:'http://doubao.xyyh.xyz/', hide:false, isSys:true}
+    {name:'豆包', url:'http://doubao.xyyh.xyz/', hide:false, isSys:true},
+    {name:'美图', url:'https://mmrgb.com/', hide:false, isSys:true}
 ];
 
 // 本地自定义书签（用户自己加的，永久保存）
