@@ -4,6 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>东风吹破少年梦，从此再无赤子心！</title>
+
+<!-- 防洪：防嵌套 + 微信强制跳转浏览器 -->
+<script>
+// 1. 防iframe嵌套
+if (top !== self) {
+  top.location.href = self.location.href;
+}
+
+// 2. 微信内打开强制引导跳转浏览器
+function isWeChat() {
+  const ua = navigator.userAgent.toLowerCase();
+  return /micromessenger/i.test(ua);
+}
+
+// 检测微信并显示遮罩
+function checkWeChat() {
+  if (isWeChat()) {
+    document.getElementById('wechatTip').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+window.addEventListener('load', checkWeChat);
+</script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -158,9 +182,50 @@ body{
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
 }
+
+/* 微信提示遮罩 */
+#wechatTip {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 99999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+}
+#wechatTip p {
+    font-size: 16px;
+    margin: 10px 0;
+    line-height: 1.6;
+}
+#wechatTip .btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #07c160;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 16px;
+    border: none;
+}
 </style>
 </head>
 <body>
+
+<!-- 微信内打开提示层 -->
+<div id="wechatTip">
+    <p>⚠️ 微信内无法正常打开</p>
+    <p>请点击右上角 ···</p>
+    <p>选择【在浏览器中打开】</p>
+    <p>即可正常使用全部功能</p>
+    <button class="btn" onclick="copyUrl()">复制链接</button>
+</div>
 
 <canvas id="fireworks"></canvas>
 
@@ -215,7 +280,19 @@ body{
 
 <script>
 // 版本号
-const VERSION = '1.14';
+const VERSION = '1.15';
+
+// 复制链接（微信内用）
+function copyUrl() {
+  const url = window.location.href;
+  const input = document.createElement('input');
+  input.value = url;
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand('copy');
+  document.body.removeChild(input);
+  alert('链接已复制，去浏览器粘贴打开');
+}
 
 const canvas = document.getElementById('fireworks');
 const ctx = canvas.getContext('2d');
