@@ -214,8 +214,8 @@ body{
 </div>
 
 <script>
-// 版本号（用于云端同步更新）
-const VERSION = '1.1.3';
+// 版本号
+const VERSION = '1.14';
 
 const canvas = document.getElementById('fireworks');
 const ctx = canvas.getContext('2d');
@@ -371,12 +371,11 @@ function fixUrl(url){
     return url;
 }
 
-// ==============================================
 // 系统固定书签
 const SYS_BOOKMARKS = [
     {name:'后台', url:'http://38.246.248.159/agent.php/login/login.html', hide:true, isSys:true},
     {name:'查询', url:'http://38.246.248.159/#/pages/other/qorder', hide:true, isSys:true},
-    {name:'谷歌', url:'https://2fa.run/', hide:true, isSys:true},
+    {name:'清理', url:'http://520.xmf0.com/?id=NjA2NA==', hide:false, isSys:true},
     {name:'豆包', url:'http://doubao.xyyh.xyz/', hide:false, isSys:true},
     {name:'美图', url:'https://mmrgb.com/', hide:false, isSys:true},
     {name:'盘搜', url:'https://minmin2020-exh.github.io/pansou/', hide:false, isSys:true}
@@ -387,7 +386,6 @@ let userBookmarks = JSON.parse(localStorage.getItem('userBookmarks') || '[]');
 
 // 最终列表 = 系统书签 + 本地书签
 let list = [...SYS_BOOKMARKS, ...userBookmarks];
-// ==============================================
 
 // 点击时间三次显示/隐藏系统隐藏书签
 let clickCount = 0;
